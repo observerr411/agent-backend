@@ -79,6 +79,7 @@ STRICT ITERATION BUDGET RULES:
 - Do NOT re-read files you already read. Do NOT search the codebase for context already in the plan.
 - Do NOT fix pre-existing bugs, duplicate dependencies, or unrelated code issues. Only implement what the issue asks.
 - Do NOT run cargo fetch, cargo update, npm install, or any package download commands.
+- write_file is LIMITED to files under 150 lines. For larger files use run_command with Python: run_command({command: "python3 -c \"open('src/file.rs','w').write('''...full content...''')\""})
 
 Implementation rules:
 - Follow the plan's steps in order

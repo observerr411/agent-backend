@@ -19,12 +19,12 @@ export const AGENT_TOOLS: AITool[] = [
     type: 'function',
     function: {
       name: 'write_file',
-      description: 'Write or overwrite a file in the repository',
+      description: 'Write or overwrite a file. IMPORTANT: Only use for files under 150 lines. For larger files use run_command with a Python heredoc: run_command({command: "python3 -c \\"open(\'path\',\'w\').write(\'\'\'...content...\'\'\')\\""})',
       parameters: {
         type: 'object',
         properties: {
-          path: { type: 'string', description: 'Relative path to the file from repo root' },
-          content: { type: 'string', description: 'Full file content to write' },
+          path: { type: 'string', description: 'Relative path to the file from repo root (do NOT use absolute paths)' },
+          content: { type: 'string', description: 'Full file content to write (keep under 150 lines)' },
         },
         required: ['path', 'content'],
       },

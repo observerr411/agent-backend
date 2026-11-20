@@ -52,11 +52,21 @@ export class ToolExecutorService {
 
     try {
       switch (toolName) {
-        case 'read_file':
-          return await this.readFile(args.path, ctx.workingDirectory);
+        case 'read_file': {
+          const readPath = args.path ?? args.filename ?? args.file_path ?? args.filepath ?? args.name;
+          return await this.readFile(readPath, ctx.workingDirectory);
+        }
 
-        case 'write_file':
-          return await this.writeFile(args.path, args.content, ctx.workingDirectory, log);
+        case 'write_file': {
+          const filePath =
+            args.path ?? args.filename ?? args.file_path ?? args.filepath ?? args.name ??
+            Object.entries(args).find(([k, v]) => k !== 'content' && typeof v === 'string' && v.length < 500)?.[1] as string | undefined;
+          if (!filePath) {
+            const keys = Object.keys(args).join(', ');
+            return { success: false, output: '', error: `write_file: could not determine path from args. Keys present: [${keys}]` };
+          }
+          return await this.writeFile(filePath, args.content, ctx.workingDirectory, log);
+        }
 
         case 'delete_file':
           return await this.deleteFile(args.path, ctx.workingDirectory, log);
@@ -91,6 +101,9 @@ export class ToolExecutorService {
   }
 
   private resolveSafePath(relativePath: string, workDir: string): string {
+    if (path.isAbsolute(relativePath) && relativePath.startsWith(workDir)) {
+      relativePath = path.relative(workDir, relativePath);
+    }
     const resolved = path.resolve(workDir, relativePath);
     if (!resolved.startsWith(workDir)) {
       throw new Error(`Path traversal detected: ${relativePath}`);
